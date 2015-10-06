@@ -1,0 +1,21 @@
+template(name='pollDisplay')
+  
+  div.col-sm-6
+    h3 #{title}
+    h4 #{question}
+    table.table
+      each answers
+        td #{text}
+        td.text-right
+          strong #{amount}
+
+    div.text-center
+        button.btn.btn-default.btn-xs.vote-btn(disabled=mayNotVote)
+          span.glyphicon.glyphicon-ok
+          |  Vote
+        button.btn.btn-default.btn-xs.edit-btn(disabled=mayNotEdit)
+          span.glyphicon.glyphicon-pencil
+          |  Edit
+        button.btn.btn-default.btn-xs.delete-btn(disabled=mayNotEdit)
+          span.glyphicon.glyphicon-trash
+          |  Delete

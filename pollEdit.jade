@@ -1,0 +1,29 @@
+template(name='pollEdit')
+  .container
+    .row
+      .col-lg-12
+        h1.page-header Edit Poll:
+        form.form-horizontal(novalidate)
+          .form-group
+            label.col-sm-2.control-lable(for='title') Title:
+            .col-sm-10
+              input.form-control(type='text' name='title' value=editPoll.title)
+          .form-group
+            label.col-sm-2.control-lable(for='question') Question:
+            .col-sm-10
+              input.form-control(type='text' name='question' value=editPoll.question)
+          each withIndexAndName 'answer' editPoll.answers
+            .form-group
+              label.col-sm-2.control-lable(for='answer') Answer #{index}:
+              .col-sm-10
+                .input-group
+                  input.form-control(type='text' name=name value=text)
+                  span.input-group-btn
+                    button.btn.btn-default.delete-btn(type='button' index=index) -
+                    button.btn.btn-default.add-btn(type='button' index=index) +
+          .form-group
+            .col-sm-offset-2.col-sm-10.text-right
+              button.btn.btn-default.cancel-btn(type='button') Cancel
+              button.btn.btn-default.ok-btn(type='submit') Ok
+
+  #{doc}
