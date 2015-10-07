@@ -20,14 +20,12 @@ template(name='polls')
   .container
     .row
       .col-lg-12
-        if showListing
-          h1.page-header Polls:
-            button.btn.btn-default.pull-right.new-poll-btn
-              span.glyphicon.glyphicon-plus
-              | New Poll
+        h1.page-header Polls:
+          a.btn.btn-default.pull-right.new-poll-btn(href='/edit')
+            span.glyphicon.glyphicon-plus
+            | New Poll
 
-          each polls
-            +pollDisplay
-        else if showEdit
-            +pollEdit
+        each polls
+          +pollDisplay
+        
 

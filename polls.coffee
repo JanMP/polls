@@ -13,48 +13,48 @@ newPoll = ->
     amoount : 0
   ]
 
+readForm = (data, form) ->
+  data.poll.title = form.title.value
+  data.poll.question = form.question.value
+  for i in [0..data.poll.answers.length-1]
+    data.poll["answers"][i]["text"] = form["answers_#{i}_text"]["value"]
+  data.dep.changed()
+  console.log 'changed:', data
+  
 
 if Meteor.isClient
-  Session.setDefault 'page', 'listing'
-  Forms.mixin(Template.pollEdit)
 
-  Template.registerHelper 'withIndexAndName', (name, list)->
+  Template.registerHelper 'withIndex', (list)->
     withIndex = _.map list, (v, i) ->
       index : i
-      name : "#{name}#{i}"
+      numberIndex : i+1
+      letterIndex : if i <= 25 then String.fromCharCode(i + 65) else i+1
+      name : "answers_#{i}_text"
       value : v
-      
-    console.log withIndex
-    return withIndex
-
-  Template.polls.helpers
-    polls : ->
-      Polls.find {}
-    showEdit : ->
-      Session.get('page') is 'edit'
-    showListing : ->
-      Session.get('page') is 'listing'
-
-  Template.polls.events
-    'click .new-poll-btn' : ->
-      Session.set 'page', 'edit'
-      Session.set 'editPoll', newPoll()
 
   Template.pollEdit.helpers
-    editPoll : ->
-      Session.get 'editPoll'
+    dummy : ->
+      this.dep.depend()
+      console.log 'depend (dummy):', this
 
   Template.pollEdit.events
-    'documentSubmit' : (event, tmpl, doc) ->
-      console.log 'submitting'
-      console.log doc
-      #Session.set 'page', 'listing'
+    'submit' : (event) ->
+      event.preventDefault()
+      readForm this, event.target
+      console.log 'Submitting:', this
+      
     'click .delete-btn' : (event) ->
-      index = event.target.getAttribute 'index'
-      editPoll = Session.get 'editPoll'
-      console.log editPoll
-    'propertyChange' : (event, template, changes)->
-      console.log changes
+      Template.parentData().dep.depend()
+      index = this.index
+      Template.parentData().poll.answers.splice Number(index),1
+      Template.parentData().dep.changed()
+      
+    'click .add-btn' : (event) ->
+      index = this.index
+      me = Template.parentData().poll.answers[index].text
+      console.log "me", me
+      me = "suck(#{me})"
+      console.log "me", me
       
     'click .cancel-btn' : ->
       Session.set 'page' : 'listing'
@@ -68,23 +68,16 @@ if Meteor.isClient
   Template.pollDisplay.events
     'click .vote-btn' : ->
       Meteor.call 'vote', this._id
-    'click .edit-btn' : ->
-      Meteor.call 'editPoll', this._id
+    #'click .edit-btn' : ->
+    #  Meteor.call 'editPoll', this._id
     'click .delete-btn' : ->
       Meteor.call 'deletePoll', this._id
 
 Meteor.methods
-  newPoll : ->
-    Session.set 'page', 'edit'
-    Session.set 'editPoll', newPoll()
   vote : (pollId) ->
     alert "vote on poll #{pollId}"
-  editPoll : (pollId) ->
-    Session.set 'page', 'edit'
-    #Session.set 'editPoll', Polls.findBy
-  savePoll : ->
-    Session.set 'page', 'listing'
-    Polls.insert(Session.get 'editPoll')
+  savePoll : (poll) ->
+    Polls.upsert poll
   deletePoll : (pollId) ->
     Polls.remove pollId
 
@@ -93,9 +86,17 @@ Router.configure
 
 Router.route '/',
   template : 'polls'
-
+  data :
+    polls : Polls.find()
+    
 Router.route '/about',
   template : 'about'
+
+Router.route '/edit',
+  template : 'pollEdit'
+  data :
+    dep : new Tracker.Dependency
+    poll : newPoll()
 
 ###
 if Meteor.isClient

@@ -4,10 +4,12 @@ template(name='pollDisplay')
     h3 #{title}
     h4 #{question}
     table.table
-      each answers
-        td #{text}
-        td.text-right
-          strong #{amount}
+      each withIndex answers
+        tr
+          td.td-letter #{letterIndex}. 
+          td #{value.text}
+          td.text-right
+            strong #{value.amount}
 
     div.text-center
         button.btn.btn-default.btn-xs.vote-btn(disabled=mayNotVote)
