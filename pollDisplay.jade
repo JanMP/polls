@@ -2,6 +2,7 @@ template(name='pollDisplay')
   div.col-sm-6
     h3 #{title}
     h4 #{question}
+    p #{creatorName}, {{livestamp creationDate}}
     table.table.table-sm
       each withIndex answers
         tbody
@@ -11,7 +12,8 @@ template(name='pollDisplay')
             td.text-right
               strong #{value.amount}
 
-    div.text-center
+    if isActivePath '/'
+      div.text-center
         button.btn.btn-default.btn-xs.vote-btn(disabled=mayNotVote)
           span.glyphicon.glyphicon-ok
           |  Vote

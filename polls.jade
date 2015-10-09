@@ -6,10 +6,11 @@ body
 template(name='layout')  
   header
     +navbar
-    #banner.hero-unit
-      .container
-        h1 &#10003;polls
-        p.lead a Basejump for freeCodeCamp
+  #banner.hero-unit
+    .container
+      h1 
+      h1 &#10003;polls
+      p.lead a Basejump for freeCodeCamp
   +yield
   footer.footer
     .container
@@ -21,7 +22,7 @@ template(name='polls')
     .row
       .col-lg-12
         h1.page-header Polls:
-          a.btn.btn-default.pull-right.new-poll-btn(href='/edit')
+          a.btn.btn-default.pull-right.new-poll-btn(href='/edit' disabled=mayNotCreate)
             span.glyphicon.glyphicon-plus
             | New Poll
 

@@ -26,3 +26,8 @@ iron:router
 ejson
 zimme:active-route
 meteortoys:allthings
+accounts-password
+ian:accounts-ui-bootstrap-3
+accounts-twitter
+momentjs:moment
+copleykj:livestamp
