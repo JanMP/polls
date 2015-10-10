@@ -1,0 +1,21 @@
+template(name='pollVote')
+  .container.grid-item
+    .row
+      .col-lg-12
+        h1.page-header Vote:
+        form.col-sm-6.center
+          h3 #{title}
+          h4 #{question}
+          p #{creatorName}, {{livestamp creationDate}}
+          table.table.table-sm
+            each withIndex answers
+              tbody
+                tr
+                  td.td-letter #{letterIndex}. 
+                  td #{value.text}
+                  td.text-right
+                    input(type='radio' name='answers' value=index)
+          .form-group
+            .col-sm-offset-2.col-sm-10.text-right
+              button.btn.btn-default.cancel-btn(type='button') Cancel
+              button.btn.btn-default.ok-btn(type='submit') Ok

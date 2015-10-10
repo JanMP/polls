@@ -15,6 +15,7 @@ if Meteor.isClient
       text : ''
       amount : 0
     ]
+    haveVoted : []
 
   readForm = (tmplData) ->
     data = Session.get 'editPoll'
@@ -24,9 +25,11 @@ if Meteor.isClient
       data["answers"][i]["text"] = tmplData["answers_#{i}_text"]["value"]
     Session.set 'editPoll', data
   
+  
   Meteor.startup ->
     Session.set 'editPoll', newPoll()
 
+  
   Template.registerHelper 'withIndex', (list)->
     withIndex = _.map list, (v, i) ->
       index : i
@@ -35,7 +38,19 @@ if Meteor.isClient
       name : "answers_#{i}_text"
       value : v
 
+  Template.pollVote.events
+
+    'submit' : (event, template) ->
+      event.preventDefault()
+      result = Number template.find('input:radio[name=answers]:checked').value
+      Meteor.call 'vote', Template.currentData()._id, result
+      Router.go '/'
+
+    'click .cancel-btn' : ->
+      Router.go '/'
+  
   Template.pollEdit.helpers
+    
     editPoll : ->
       poll = Session.get 'editPoll'
       unless poll.creatorId?
@@ -45,6 +60,7 @@ if Meteor.isClient
         poll.creationDate = new Date()
       return poll
 
+  
   Template.pollEdit.events
     
     'keyup input' : (event)->
@@ -72,31 +88,38 @@ if Meteor.isClient
       editPoll.answers.splice index+1 ,0, {text:'', amount:0}
       Session.set 'editPoll', editPoll
       
+  
   Template.pollDisplay.helpers
+    
     fromNow : ->
       moment(this.creationDate).fromNow()
+    
     mayNotEdit : ->
-      console.log Meteor.userId()
-      console.log this.creatorId
-      console.log this.creatorId isnt Meteor.userId
       not Meteor.userId() or this.creatorId isnt Meteor.userId()
 
     mayNotVote : ->
-      true
+      not Meteor.userId() or _.contains this.haveVoted, Meteor.userId()
 
+  
   Template.pollDisplay.events
+  
     'click .vote-btn' : ->
-      Meteor.call 'vote', this._id
+      Router.go "/vote/#{this._id}"
+  
     'click .edit-btn' : ->
       Session.set 'editPoll', Polls.findOne(this._id)
       Router.go "/edit"
+  
     'click .delete-btn' : ->
       Meteor.call 'deletePoll', this._id
 
+  
   Template.polls.helpers
+  
     mayNotCreate : ->
       not Meteor.userId()
       
+  
   Router.configure
     layoutTemplate : 'layout'
 
@@ -110,24 +133,45 @@ if Meteor.isClient
 
   Router.route '/edit',
     template : 'pollEdit'
-    #data : newPoll()
+  
+  Router.route '/vote/:_id',
+    template : 'pollVote'
+    data : ->
+      Polls.findOne(this.params._id)
 
+  
   Accounts.ui.config
     passwordSignupFields: "USERNAME_AND_EMAIL"
 
 #/if Meteor.isClient
 
 Meteor.methods
-  vote : (pollId) ->
-    alert "vote on poll #{pollId}"
+  
+  vote : (pollId, result) ->
+    unless this.userId
+      throw new Meteor.Error 'logged-out', 'must be logged in to vote'
+    if _.contains Polls.findOne(pollId).haveVoted, this.userId
+      throw new Meteor.Error 'has-Voted', 'you may only vote once'
+    Polls.update pollId,
+      $inc :
+        "answers.#{result}.amount" : 1
+      $push :
+        haveVoted : this.userId
+
   savePoll : (poll) ->
-    if this.userId
-      unless poll.creatorId?
-        poll.creatorId = this.userId
-        poll.creatorName = Meteor.user().username
-      unless poll.creationDate?
-        poll.creationDate = new Date()
-      Polls.upsert poll._id, poll
-    else console.log 'not authorized'
+    unless this.userId
+      throw new Meteor.Error 'logged-out', 'must be logged in to save Polls'
+    unless poll.creatorId?
+      poll.creatorId = this.userId
+      poll.creatorName = Meteor.user().username
+    unless poll.creationDate?
+      poll.creationDate = new Date()
+    Polls.upsert poll._id, poll
+   
   deletePoll : (pollId) ->
+    unless this.userId
+      throw new Meteor.Error 'logged-out', 'must be logged in to delete Polls'
+    unless Polls.find(pollId).creatorId is this.userId
+      throw new Meteor.Error 'not-the-owner', 'you can only delete Polls you created'
     Polls.remove pollId
+

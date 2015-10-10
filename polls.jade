@@ -25,8 +25,8 @@ template(name='polls')
           a.btn.btn-default.pull-right.new-poll-btn(href='/edit' disabled=mayNotCreate)
             span.glyphicon.glyphicon-plus
             | New Poll
-
-        each polls
-          +pollDisplay
+        div
+          each polls
+            +pollDisplay
         
 
