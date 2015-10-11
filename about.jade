@@ -4,9 +4,9 @@ template(name='about')
     h2 Work in Progress
     if currentUser
       p.
-        Hello #{currentUser.username}, since you are logged in you can create polls and you
-        can edit or delete the polls you created. Voting is not done yet.
+        Hello #{currentUser.username}, since you are logged in you can vote, create polls and you
+        can edit or delete the polls you created.
     else
       p.
-        You need to be logged in, to be able to create or edit polls or to vote (voting not done yet).
+        You need to be logged in, to be able to create or edit polls or to vote.
       

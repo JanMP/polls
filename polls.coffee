@@ -38,12 +38,20 @@ if Meteor.isClient
       name : "answers_#{i}_text"
       value : v
 
+  Template.pollVote.helpers
+
+    votePoll : ->
+      Session.get 'votePoll'
+
+
   Template.pollVote.events
 
     'submit' : (event, template) ->
       event.preventDefault()
+      poll = Session.get 'votePoll'
+      console.log 'template', template.find('input:radio')
       result = Number template.find('input:radio[name=answers]:checked').value
-      Meteor.call 'vote', Template.currentData()._id, result
+      Meteor.call 'vote', poll._id, result
       Router.go '/'
 
     'click .cancel-btn' : ->
@@ -104,7 +112,8 @@ if Meteor.isClient
   Template.pollDisplay.events
   
     'click .vote-btn' : ->
-      Router.go "/vote/#{this._id}"
+      Session.set 'votePoll', Polls.findOne(this._id)
+      Router.go "/vote"
   
     'click .edit-btn' : ->
       Session.set 'editPoll', Polls.findOne(this._id)
@@ -134,10 +143,16 @@ if Meteor.isClient
   Router.route '/edit',
     template : 'pollEdit'
   
-  Router.route '/vote/:_id',
+  Router.route '/vote',
     template : 'pollVote'
-    data : ->
-      Polls.findOne(this.params._id)
+
+  Router.route '/vote/:_id', ->
+    poll = Polls.findOne this.params._id
+    console.log 'poll', poll
+    this.render 'pollVote',
+      data : -> poll
+        
+      
 
   
   Accounts.ui.config
@@ -148,9 +163,10 @@ if Meteor.isClient
 Meteor.methods
   
   vote : (pollId, result) ->
+    poll = Polls.findOne(pollId)
     unless this.userId
       throw new Meteor.Error 'logged-out', 'must be logged in to vote'
-    if _.contains Polls.findOne(pollId).haveVoted, this.userId
+    if _.contains poll.haveVoted, this.userId
       throw new Meteor.Error 'has-Voted', 'you may only vote once'
     Polls.update pollId,
       $inc :
@@ -169,9 +185,10 @@ Meteor.methods
     Polls.upsert poll._id, poll
    
   deletePoll : (pollId) ->
+    poll = Polls.findOne(pollId)
     unless this.userId
       throw new Meteor.Error 'logged-out', 'must be logged in to delete Polls'
-    unless Polls.find(pollId).creatorId is this.userId
-      throw new Meteor.Error 'not-the-owner', 'you can only delete Polls you created'
+    unless poll.creatorId is this.userId
+      throw new Meteor.Error 'not-the-owner', 'can only delete your own Polls'
     Polls.remove pollId
 
