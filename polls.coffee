@@ -2,6 +2,8 @@ Polls = new Mongo.Collection 'polls'
 
 if Meteor.isClient
 
+  Meteor.subscribe 'polls'
+
   newPoll = ->
     title : ''
     question : ''
@@ -39,34 +41,47 @@ if Meteor.isClient
       value : v
 
   Template.pollVote.helpers
-
-    votePoll : ->
-      Session.get 'votePoll'
-
+    poll : ->
+      pollId = FlowRouter.getParam '_id'
+      Polls.findOne pollId
 
   Template.pollVote.events
 
     'submit' : (event, template) ->
       event.preventDefault()
-      poll = Session.get 'votePoll'
-      console.log 'template', template.find('input:radio')
       result = Number template.find('input:radio[name=answers]:checked').value
-      Meteor.call 'vote', poll._id, result
-      Router.go '/'
+      Meteor.call 'vote', this._id, result
+      FlowRouter.go '/'
 
     'click .cancel-btn' : ->
-      Router.go '/'
+      FlowRouter.go '/'
   
+
+  Template.pollEdit.onCreated ->
+    this.autorun =>
+      console.log 'autorun'
+      id = FlowRouter.getParam '_id'
+
+      if id is 'new'
+        poll = newPoll()
+      else
+        poll = Polls.findOne id
+      
+      if poll?
+        unless poll.creatorId?
+          poll.creatorId = this.userId
+          poll.creatorName = Meteor.user().username
+        unless poll.creationDate?
+          poll.creationDate = new Date()
+
+        Session.set 'editPoll', poll
+
+
+
   Template.pollEdit.helpers
     
-    editPoll : ->
-      poll = Session.get 'editPoll'
-      unless poll.creatorId?
-        poll.creatorId = this.userId
-        poll.creatorName = Meteor.user().username
-      unless poll.creationDate?
-        poll.creationDate = new Date()
-      return poll
+    poll : ->
+      Session.get 'editPoll'
 
   
   Template.pollEdit.events
@@ -76,19 +91,17 @@ if Meteor.isClient
     
     'submit' : (event) ->
       event.preventDefault()
-      Meteor.call 'savePoll', Session.get('editPoll')
-      Session.set 'editPoll', newPoll()
-      Router.go('/')
+      Meteor.call 'savePoll', this
+      FlowRouter.go('/')
 
     'click .cancel-btn' : ->
-      Session.set 'editPoll', newPoll()
-      Router.go('/')
+      FlowRouter.go('/')
       
     'click .delete-btn' : (event) ->
-      editPoll = Session.get 'editPoll'
+      poll = Session.get 'editPoll'
       index = this.index
-      editPoll.answers.splice index ,1
-      Session.set 'editPoll', editPoll
+      poll.answers.splice index ,1
+      Session.set 'editPoll', poll
       
     'click .add-btn' : (event) ->
       editPoll = Session.get 'editPoll'
@@ -112,53 +125,54 @@ if Meteor.isClient
   Template.pollDisplay.events
   
     'click .vote-btn' : ->
-      Session.set 'votePoll', Polls.findOne(this._id)
-      Router.go "/vote"
+      #Session.set 'votePoll', Polls.findOne(this._id)
+      FlowRouter.go "/vote/#{this._id}"
   
     'click .edit-btn' : ->
-      Session.set 'editPoll', Polls.findOne(this._id)
-      Router.go "/edit"
+      #Session.set 'editPoll', Polls.findOne(this._id)
+      FlowRouter.go "/edit/#{this._id}"
   
     'click .delete-btn' : ->
       Meteor.call 'deletePoll', this._id
 
   
   Template.polls.helpers
+
+    polls : Polls.find()
   
     mayNotCreate : ->
       not Meteor.userId()
       
-  
-  Router.configure
-    layoutTemplate : 'layout'
 
-  Router.route '/',
-    template : 'polls'
-    data :
-      polls : Polls.find()
-      
-  Router.route '/about',
-    template : 'about'
+  FlowRouter.route '/',
+    action : ->
+      BlazeLayout.render 'layout',
+        content : 'polls'
 
-  Router.route '/edit',
-    template : 'pollEdit'
-  
-  Router.route '/vote',
-    template : 'pollVote'
+  FlowRouter.route '/about',
+    action : ->
+      BlazeLayout.render 'layout',
+        content : 'about'
 
-  Router.route '/vote/:_id', ->
-    poll = Polls.findOne this.params._id
-    console.log 'poll', poll
-    this.render 'pollVote',
-      data : -> poll
-        
-      
+  FlowRouter.route '/edit/:_id',
+    action : ->
+      BlazeLayout.render 'layout',
+        content : 'pollEdit'
 
-  
+  FlowRouter.route '/vote/:_id',
+    action : ->
+      BlazeLayout.render 'layout',
+        content : 'pollVote'
+
+
   Accounts.ui.config
     passwordSignupFields: "USERNAME_AND_EMAIL"
 
-#/if Meteor.isClient
+if Meteor.isServer
+
+  Meteor.publish 'polls', ->
+    Polls.find()
+  
 
 Meteor.methods
   

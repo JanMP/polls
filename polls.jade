@@ -12,18 +12,17 @@ template(name='layout')
       h1 
       h1 &#10003;polls
       p.lead a Basejump for freeCodeCamp
-  +yield
+  {{> Template.dynamic template=content}}
   footer.footer
     .container
       p &#10003;polls - &copy; 2015 - Jan Pilgenröder
-
 
 template(name='polls')
   .container
     .row
       .col-lg-12
         h1.page-header Polls:
-          a.btn.btn-default.pull-right.new-poll-btn(href='/edit' disabled=mayNotCreate)
+          a.btn.btn-default.pull-right.new-poll-btn(href='/edit/new' disabled=mayNotCreate)
             span.glyphicon.glyphicon-plus
             | New Poll
         div
