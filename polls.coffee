@@ -43,7 +43,8 @@ if Meteor.isClient
   Template.pollVote.helpers
     poll : ->
       pollId = FlowRouter.getParam '_id'
-      Polls.findOne pollId
+      poll = Polls.findOne pollId
+      return poll
 
   Template.pollVote.events
 
@@ -59,7 +60,7 @@ if Meteor.isClient
 
   Template.pollEdit.onCreated ->
     this.autorun =>
-      console.log 'autorun'
+    
       id = FlowRouter.getParam '_id'
 
       if id is 'new'
