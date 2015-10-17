@@ -13,15 +13,15 @@ template(name='pollEdit')
               label.col-sm-2.control-lable(for='question') Question:
               .col-sm-10
                 input.form-control(type='text' name='question' value=question)
-            each withIndex answers
+            each answers
               .form-group
-                label.col-sm-2.control-lable(for='answer') Answer #{letterIndex}:
+                label.col-sm-2.control-lable(for='answer') Answer #{ordinalLetter(@index)}:
                 .col-sm-10
                   .input-group
-                    input.form-control(type='text' name=name index=index value=value.text)
+                    input.form-control(type='text' name="answers_#{@index}_text" index='#{@index}' value=text)
                     span.input-group-btn
-                      button.btn.btn-default.delete-btn(type='button' index=index) -
-                      button.btn.btn-default.add-btn(type='button' index=index) +
+                      button.btn.btn-default.delete-btn(type='button' index='#{@index}') -
+                      button.btn.btn-default.add-btn(type='button' index='#{@index}') +
             .form-group
               .col-sm-offset-2.col-sm-10.text-right
                 button.btn.btn-default.cancel-btn(type='button') Cancel

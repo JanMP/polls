@@ -18,11 +18,9 @@ ecmascript              # Enable ECMAScript2015+ syntax in app code
 
 insecure                # Allow all DB writes from clients (for prototyping)
 twbs:bootstrap
-mquandalle:jade
 coffeescript
 stylus
 ejson
-zimme:active-route
 meteortoys:allthings
 accounts-password
 ian:accounts-ui-bootstrap-3
@@ -31,3 +29,5 @@ momentjs:moment
 copleykj:livestamp
 kadira:flow-router
 kadira:blaze-layout
+dalgard:jade
+mfpierre:chartist-js

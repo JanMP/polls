@@ -1,5 +1,5 @@
 template(name='navbar')
-  nav.navbar.navbar-default
+  nav.navbar.navbar-default.navbar-fixed-top
     .container-fluid
       .navbar-header
         a.navbar-brand(href='/') &#10003;polls
@@ -10,7 +10,7 @@ template(name='navbar')
       div.navbar-collapse.collapse
         ul.nav.navbar-nav
           li
-            a(href='/about' class="{{isActivePath '/about'}}") about
+            a(href='/about') about
         ul.nav.navbar-nav.navbar-right
           +loginButtons
 

@@ -1,0 +1,27 @@
+template(name='pollDisplay')
+  div.col-sm-6.col-lg-4.padded
+    //+highchartsHelper(chartId=_id chartWidth="100%" chartHeight="100%" chartObject=pieChart)
+    +chart
+    h3 #{title}
+    h4 #{question}
+    p #{creatorName}, {{livestamp creationDate}}
+    table.table.table-sm
+      each answers
+        tbody
+          tr
+            td.td-letter #{ordinalLetter(@index)}: 
+            td #{text}
+            td.text-right
+              strong #{amount}
+
+    if isActiveRoute 'home'
+      div.text-center
+        button.btn.btn-default.vote-btn(disabled=mayNotVote)
+          span.glyphicon.glyphicon-ok
+          |  Vote
+        button.btn.btn-default.edit-btn(disabled=mayNotEdit)
+          span.glyphicon.glyphicon-pencil
+          |  Edit
+        button.btn.btn-default.delete-btn(disabled=mayNotEdit)
+          span.glyphicon.glyphicon-trash
+          |  Delete

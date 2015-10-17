@@ -31,7 +31,7 @@ if Meteor.isClient
   Meteor.startup ->
     Session.set 'editPoll', newPoll()
 
-  
+  ###
   Template.registerHelper 'withIndex', (list)->
     withIndex = _.map list, (v, i) ->
       index : i
@@ -39,13 +39,25 @@ if Meteor.isClient
       letterIndex : if i <= 25 then String.fromCharCode(i + 65) else i+1
       name : "answers_#{i}_text"
       value : v
+  ###
+
+  Template.registerHelper 'ordinal', (i) -> i + 1
+
+  @ordinalLetter = (i) ->
+    if i < 26 then String.fromCharCode(i + 65) else i+1
+  
+  Template.registerHelper 'ordinalLetter', ordinalLetter
+  
+  Template.registerHelper 'isActiveRoute', (str) ->
+    str is FlowRouter.getRouteName()
 
   Template.pollVote.helpers
+    
     poll : ->
       pollId = FlowRouter.getParam '_id'
-      poll = Polls.findOne pollId
-      return poll
+      Polls.findOne pollId
 
+  
   Template.pollVote.events
 
     'submit' : (event, template) ->
@@ -60,21 +72,17 @@ if Meteor.isClient
 
   Template.pollEdit.onCreated ->
     this.autorun =>
-    
       id = FlowRouter.getParam '_id'
-
       if id is 'new'
         poll = newPoll()
       else
         poll = Polls.findOne id
-      
       if poll?
         unless poll.creatorId?
           poll.creatorId = this.userId
           poll.creatorName = Meteor.user().username
         unless poll.creationDate?
           poll.creationDate = new Date()
-
         Session.set 'editPoll', poll
 
 
@@ -84,10 +92,11 @@ if Meteor.isClient
     poll : ->
       Session.get 'editPoll'
 
+
   
   Template.pollEdit.events
     
-    'keyup input' : (event)->
+    'keyup input' : (event) ->
       readForm event.target.form
     
     'submit' : (event) ->
@@ -100,13 +109,14 @@ if Meteor.isClient
       
     'click .delete-btn' : (event) ->
       poll = Session.get 'editPoll'
-      index = this.index
+      index = Number $(event.target).attr('index')
       poll.answers.splice index ,1
       Session.set 'editPoll', poll
       
     'click .add-btn' : (event) ->
       editPoll = Session.get 'editPoll'
-      index = this.index
+      console.log event.target
+      index = Number $(event.target).attr('index')
       editPoll.answers.splice index+1 ,0, {text:'', amount:0}
       Session.set 'editPoll', editPoll
       
@@ -136,6 +146,19 @@ if Meteor.isClient
     'click .delete-btn' : ->
       Meteor.call 'deletePoll', this._id
 
+  Template.pollDisplay.pieChart = ->
+    console.log this
+    plotOptions :
+      pie :
+        allowPointSelect : true
+        cursor : 'pointer'
+    title : this.title
+    series : [
+      type : 'pie'
+      name : 'answers'
+      data : this.answers.map (answer, index) ->
+        ["#{ordinalLetter(index)}", answer.amount]
+    ]
   
   Template.polls.helpers
 
@@ -146,6 +169,7 @@ if Meteor.isClient
       
 
   FlowRouter.route '/',
+    name : 'home'
     action : ->
       BlazeLayout.render 'layout',
         content : 'polls'
@@ -197,7 +221,10 @@ Meteor.methods
       poll.creatorName = Meteor.user().username
     unless poll.creationDate?
       poll.creationDate = new Date()
-    Polls.upsert poll._id, poll
+    if poll._id?
+      Polls.update poll._id, poll
+    else
+      Polls.insert poll
    
   deletePoll : (pollId) ->
     poll = Polls.findOne(pollId)

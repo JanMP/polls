@@ -9,7 +9,6 @@ template(name='layout')
     +navbar
   #banner.hero-unit
     .container
-      h1 
       h1 &#10003;polls
       p.lead a Basejump for freeCodeCamp
   {{> Template.dynamic template=content}}
@@ -18,7 +17,7 @@ template(name='layout')
       p &#10003;polls - &copy; 2015 - Jan Pilgenröder
 
 template(name='polls')
-  .container
+  .container-fluid
     .row
       .col-lg-12
         h1.page-header Polls:
