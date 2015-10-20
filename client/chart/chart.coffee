@@ -22,7 +22,6 @@ drawChart = ->
     console.log "$('#{selector}') not found"
     return
   
-  console.log "drawing #{selector}"
   pieChart = new Chartist.Pie(selector, data, options)
 
 Template.chart.onRendered ->

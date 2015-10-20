@@ -22,11 +22,12 @@
     defaultValue : 0
   creatorName :
     type : String
+    autoValue : ->
+      Meteor.user().username
   creatorId :
     type : String
     autoValue : ->
-      if this.isInsert
-        return this.userId
+      this.userId
   creationDate :
     type : Date
     autoValue : ->

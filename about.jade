@@ -1,7 +1,8 @@
 template(name='about')
   .container
     h1.page-header about &#10003;polls
-    h2 Work in Progress
+    h3 Work in Progress
+    
     if currentUser
       p.
         Hello #{currentUser.username}, since you are logged in you can vote, create polls and you
@@ -9,4 +10,8 @@ template(name='about')
     else
       p.
         You need to be logged in, to be able to create or edit polls or to vote.
+    
+    p.
+      This web-app is pretty much under contruction, so on any given day it may or may not work.
+      The sources and my todo list for this project can be found #[a(href='http://github.com/JanMP/polls') on gitHub].
       

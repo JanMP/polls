@@ -74,7 +74,10 @@ Meteor.methods
   savePoll : (poll) ->
     unless this.userId
       throw new Meteor.Error 'logged-out', 'must be logged in to save Polls'
-    Polls.upsert poll._id, {$set : poll}
+    if poll._id?
+      Polls.update poll._id, {$set : poll}
+    else
+      Polls.insert poll
     ###
     unless poll.creatorId?
       poll.creatorId = this.userId
