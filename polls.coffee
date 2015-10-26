@@ -1,5 +1,3 @@
-
-
 if Meteor.isClient
 
   Meteor.subscribe 'polls'
@@ -71,24 +69,14 @@ Meteor.methods
       $push :
         haveVoted : this.userId
 
-  savePoll : (poll) ->
+  savePoll : (poll, callback) ->
     unless this.userId
       throw new Meteor.Error 'logged-out', 'must be logged in to save Polls'
     if poll._id?
-      Polls.update poll._id, {$set : poll}
+      Polls.update poll._id, {$set : poll}, {modifier : true}, callback
     else
-      Polls.insert poll
-    ###
-    unless poll.creatorId?
-      poll.creatorId = this.userId
-      poll.creatorName = Meteor.user().username
-    unless poll.creationDate?
-      poll.creationDate = new Date()
-    if poll._id?
-      Polls.update poll._id, poll
-    else
-      Polls.insert poll
-    ###
+      Polls.insert poll, callback
+      
 
   deletePoll : (pollId) ->
     poll = Polls.findOne(pollId)

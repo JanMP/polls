@@ -3,27 +3,24 @@ template(name='pollEdit')
     .container
       .row
         .col-lg-12
-          h1.page-header Edit Poll:
+          h1.page-header Edit Poll (#{valid}):
           form.form-horizontal(novalidate)
             .form-group
-              label.col-sm-2.control-lable(for='title') Title:
-              .col-sm-10
-                input.form-control(type='text' name='title' value=title)
+              label.control-lable(for='title') Title:
+              input.form-control(type='text' name='title' value=title)
             .form-group
-              label.col-sm-2.control-lable(for='question') Question:
-              .col-sm-10
-                input.form-control(type='text' name='question' value=question)
+              label.control-lable(for='question') Question:
+              input.form-control(type='text' name='question' value=question)
             each answers
               .form-group
-                label.col-sm-2.control-lable(for='answer') Answer #{ordinalLetter(@index)}:
-                .col-sm-10
-                  .input-group
-                    input.form-control(type='text' name="answers_#{@index}_text" index='#{@index}' value=text)
-                    span.input-group-btn
-                      button.btn.btn-default.delete-btn(type='button' index='#{@index}') -
-                      button.btn.btn-default.add-btn(type='button' index='#{@index}') +
+                label.control-lable(for='answer') Answer #{ordinalLetter(@index)}:
+                .input-group
+                  input.form-control(type='text' name="answers.#{@index}.text" index='#{@index}' value=text)
+                  span.input-group-btn
+                    button.btn.btn-default.delete-btn(type='button' index='#{@index}') -
+                    button.btn.btn-default.add-btn(type='button' index='#{@index}') +
             .form-group
-              .col-sm-offset-2.col-sm-10.text-right
+              .text-right
                 button.btn.btn-default.cancel-btn(type='button') Cancel
                 button.btn.btn-default.ok-btn(type='submit') Ok
     .container
