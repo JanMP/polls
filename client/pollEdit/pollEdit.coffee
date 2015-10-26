@@ -54,6 +54,14 @@ Template.pollEdit.helpers
   poll : ->
     Session.get "editPoll"
 
+  invalidText : (key, index = -1) ->
+    if index > -1
+      keyArr = key.split "."
+      for str, i in keyArr
+        if str is "{{@index}}" then keyArr[i] = index
+      key = keyArr.join(".")
+    schema.keyErrorMessage key
+
   
 Template.pollEdit.events
   

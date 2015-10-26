@@ -8,9 +8,11 @@ template(name='pollEdit')
             .form-group
               label.control-lable(for='title') Title:
               input.form-control(type='text' name='title' value=title)
+              p.invalid-text #{invalidText "title"}
             .form-group
               label.control-lable(for='question') Question:
               input.form-control(type='text' name='question' value=question)
+              p.invalid-text #{invalidText "question"}
             each answers
               .form-group
                 label.control-lable(for='answer') Answer #{ordinalLetter(@index)}:
@@ -19,6 +21,7 @@ template(name='pollEdit')
                   span.input-group-btn
                     button.btn.btn-default.delete-btn(type='button' index='#{@index}') -
                     button.btn.btn-default.add-btn(type='button' index='#{@index}') +
+                p.invalid-text #{invalidText "answers.#{@index}.text" @index}
             .form-group
               .text-right
                 button.btn.btn-default.cancel-btn(type='button') Cancel
