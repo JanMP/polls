@@ -72,9 +72,10 @@ Template.pollEdit.events
     
   "click .delete-btn" : (event) ->
     poll = Session.get "editPoll"
-    index = Number $(event.target).attr("index")
-    poll.answers.splice index ,1
-    Session.set "editPoll", poll
+    if poll.answers.length > 2
+      index = Number $(event.target).attr("index")
+      poll.answers.splice index ,1
+      Session.set "editPoll", poll
     
   "click .add-btn" : (event) ->
     editPoll = Session.get "editPoll"
